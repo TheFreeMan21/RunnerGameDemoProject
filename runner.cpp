@@ -11,20 +11,22 @@ int main(){
     //acceleration due to gravity (pixels/frame)/frame
     const int gravity{1};
 
+    //player properties
     Texture2D runner = LoadTexture("textures/scarfy.png");
     Rectangle runnerRec;
+    runnerRec.width = runner.width/6;
+    runnerRec.height = runner.height;
+    runnerRec.x = 0;
+    runnerRec.y = 0;
     Vector2 runnerPos;
-
-    //player properties
-    const int width{50};
-    const int height{100};
+    runnerPos.x = windowWidth/2 - runnerRec.width/2;
+    runnerPos.y = windowHeight - runnerRec.height;
 
     //Is in air?
     bool isInAir;
     //jump velocity
     const int jumpVel{-22};
 
-    int posY{windowHeight - height};
     int velocity{0};
 
     SetTargetFPS(60);
@@ -35,7 +37,7 @@ int main(){
         ClearBackground(WHITE);
 
         //perform ground check
-        if(posY >= windowHeight-height){
+        if(runnerPos.y >= windowHeight-runnerRec.height){
             //rectangle on the ground
             velocity=0;
             isInAir=false;
@@ -52,12 +54,13 @@ int main(){
         }
 
         //update position
-        posY+=velocity;
+        runnerPos.y+=velocity;
 
-        DrawRectangle(windowWidth/2,posY, width, height, BLUE);
+        DrawTextureRec(runner, runnerRec, runnerPos, WHITE);
         
         //stop drawing
         EndDrawing();
     }
+    UnloadTexture(runner);
     CloseWindow();
 }
