@@ -11,16 +11,18 @@ int main(){
     //acceleration due to gravity (pixels/frame)/frame
     const int gravity{1'000};
 
+    //obstacle variables
+    Texture2D obstacle = LoadTexture("textures/12_nebula_spritesheet.png");
+    Rectangle obsRec{0.0, 0.0, obstacle.width/8, obstacle.height/8};
+    Vector2 obsPos{windowWidth, windowHeight - obsRec.height};
+
+    //nebula x velocity (pixels/second)
+    int obsVel{-600};
+
     //player properties
     Texture2D runner = LoadTexture("textures/scarfy.png");
-    Rectangle runnerRec;
-    runnerRec.width = runner.width/6;
-    runnerRec.height = runner.height;
-    runnerRec.x = 0;
-    runnerRec.y = 0;
-    Vector2 runnerPos;
-    runnerPos.x = windowWidth/2 - runnerRec.width/2;
-    runnerPos.y = windowHeight - runnerRec.height;
+    Rectangle runnerRec{0.0, 0.0, runner.width/6, runner.height};
+    Vector2 runnerPos{windowWidth/2 - runnerRec.width/2, windowHeight - runnerRec.height};
 
     //animation frame
     int frame{};
@@ -63,26 +65,36 @@ int main(){
             velocity+=jumpVel;
         }
 
-        //update position
+        //update obstacle position
+        obsPos.x += obsVel*dT;
+
+        //update runner position
         runnerPos.y+=velocity*dT;
 
-        //update running time
-        runningTime+=dT;
-        if(runningTime >= updateTime){
-            runningTime=0;
-            //update animation frame
-            runnerRec.x = frame * runnerRec.width;
-            frame++;
-            if(frame>5){
-                frame=0;
+        if(!isInAir){
+            //update running time
+            runningTime+=dT;
+            if(runningTime >= updateTime){
+                runningTime=0;
+                //update animation frame
+                runnerRec.x = frame * runnerRec.width;
+                frame++;
+                if(frame>5){
+                    frame=0;
+                }
             }
         }
 
+        //draw obstacle
+        DrawTextureRec(obstacle, obsRec, obsPos, WHITE);
+
+        //draw runner
         DrawTextureRec(runner, runnerRec, runnerPos, WHITE);
         
         //stop drawing
         EndDrawing();
     }
     UnloadTexture(runner);
+    UnloadTexture(obstacle);
     CloseWindow();
 }
