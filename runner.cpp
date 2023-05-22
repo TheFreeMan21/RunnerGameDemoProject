@@ -24,20 +24,25 @@ int main(){
     //obstacle variables
     
     Texture2D obstacle = LoadTexture("textures/12_nebula_spritesheet.png");
-    AnimData obsData{
-        {0.0, 0.0, obstacle.width/8, obstacle.height/8}, //Rectangle Rec
-        {windowDimensions[0], windowDimensions[1] - obsData.rec.height},  //Rectangle Pos
-        0,  //int frame
-        1.0/12.0,  //float updateTime
-        0.0  //float runningTime
-    };
-    AnimData obs2Data{
-        {0.0, 0.0, obstacle.width/8, obstacle.height/8}, //Rectangle Rec
-        {windowDimensions[0]+300,windowDimensions[1] - obs2Data.rec.height}, //Rectangle Pos
-        0, //int frame
-        1.0/16.0, //float updateTime
-        0.0 //float runningTime
-    };
+
+    const int numberOfObstacles = 3;
+
+    AnimData obsAray[numberOfObstacles]{};
+
+    for(int i=0;i<numberOfObstacles;i++){
+        obsAray[i].rec.x=0.0;
+        obsAray[i].rec.y=0.0;
+        obsAray[i].rec.width=obstacle.width/8;
+        obsAray[i].rec.height=obstacle.height/8;
+        obsAray[i].pos.y=windowDimensions[1] - obstacle.height/8;
+        obsAray[i].frame=0;
+        obsAray[i].runningTime=0.0;
+        obsAray[i].updateTime=1.0/16.0;
+    }
+
+    obsAray[0].pos.x=windowDimensions[0];
+    obsAray[1].pos.x=windowDimensions[0]+300;
+    obsAray[2].pos.x=windowDimensions[0]+600;
 
     //nebula x velocity (pixels/second)
     int obsVel{-200};
@@ -87,14 +92,27 @@ int main(){
             velocity+=jumpVel;
         }
 
-        //update obstacle position
-        obsData.pos.x+=obsVel*dT;
-
-        //update the second obstacle position
-        obs2Data.pos.x+=obsVel*dT;
-
         //update runner position
         runnerData.pos.y+=velocity*dT;
+
+        for (int i = 0; i < numberOfObstacles; i++)
+        {
+            //update obstacle position
+            obsAray[i].pos.x+=obsVel*dT;
+
+            //update nebula animation frame
+            obsAray[i].runningTime += dT;
+            if(obsAray[i].runningTime >= obsAray[i].updateTime){
+                obsAray[i].runningTime = 0.0;
+                //update animation frame
+                obsAray[i].rec.x = obsAray[i].frame * obsAray[i].rec.width;
+                obsAray[i].frame++;
+                if(obsAray[i].frame>8){
+                    obsAray[i].frame=0;
+                }
+            }
+        }
+        
 
         //update runner's animation frame
         if(!isInAir){
@@ -111,35 +129,14 @@ int main(){
             }
         }
 
-        //update nebula animation frame
-        obsData.runningTime += dT;
-        if(obsData.runningTime >= obsData.updateTime){
-            obsData.runningTime = 0.0;
-            //update animation frame
-            obsData.rec.x = obsData.frame * obsData.rec.width;
-            obsData.frame++;
-            if(obsData.frame>8){
-                obsData.frame=0;
-            }
-        }
-
-        //update nebula animation frame
-        obs2Data.runningTime += dT;
-        if(obs2Data.runningTime >= obs2Data.updateTime){
-            obs2Data.runningTime = 0.0;
-            //update animation frame
-            obs2Data.rec.x = obs2Data.frame * obs2Data.rec.width;
-            obs2Data.frame++;
-            if(obs2Data.frame>8){
-                obs2Data.frame=0;
-            }
-        }
-
         //draw obstacle
-        DrawTextureRec(obstacle, obsData.rec, obsData.pos, WHITE);
+        DrawTextureRec(obstacle, obsAray[0].rec, obsAray[0].pos, WHITE);
 
         //draw second obstacle
-        DrawTextureRec(obstacle, obs2Data.rec, obs2Data.pos, RED);
+        DrawTextureRec(obstacle, obsAray[1].rec, obsAray[1].pos, RED);
+
+        //draw third obstacle
+        DrawTextureRec(obstacle, obsAray[2].rec, obsAray[2].pos, PURPLE);
 
         //draw runner
         DrawTextureRec(runner, runnerData.rec, runnerData.pos, WHITE);
