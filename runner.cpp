@@ -25,7 +25,8 @@ int main(){
     
     Texture2D obstacle = LoadTexture("textures/12_nebula_spritesheet.png");
 
-    const int numberOfObstacles = 3;
+    const int numberOfObstacles = 6;
+    int x = 0;
 
     AnimData obsAray[numberOfObstacles]{};
 
@@ -38,11 +39,9 @@ int main(){
         obsAray[i].frame=0;
         obsAray[i].runningTime=0.0;
         obsAray[i].updateTime=1.0/16.0;
+        obsAray[i].pos.x=windowDimensions[0]+x;
+        x+=300;
     }
-
-    obsAray[0].pos.x=windowDimensions[0];
-    obsAray[1].pos.x=windowDimensions[0]+300;
-    obsAray[2].pos.x=windowDimensions[0]+600;
 
     //nebula x velocity (pixels/second)
     int obsVel{-200};
@@ -95,6 +94,21 @@ int main(){
         //update runner position
         runnerData.pos.y+=velocity*dT;
 
+        //update runner's animation frame
+        if(!isInAir){
+            //update running time
+            runnerData.runningTime+=dT;
+            if(runnerData.runningTime >= runnerData.updateTime){
+                runnerData.runningTime=0.0;
+                //update animation frame
+                runnerData.rec.x = runnerData.frame * runnerData.rec.width;
+                runnerData.frame++;
+                if(runnerData.frame>5){
+                    runnerData.frame=0;
+                }
+            }
+        }
+
         for (int i = 0; i < numberOfObstacles; i++)
         {
             //update obstacle position
@@ -111,32 +125,10 @@ int main(){
                     obsAray[i].frame=0;
                 }
             }
+
+            //draw obstacle
+            DrawTextureRec(obstacle, obsAray[i].rec, obsAray[i].pos, WHITE);
         }
-        
-
-        //update runner's animation frame
-        if(!isInAir){
-            //update running time
-            runnerData.runningTime+=dT;
-            if(runnerData.runningTime >= runnerData.updateTime){
-                runnerData.frame=0;
-                //update animation frame
-                runnerData.rec.x = runnerData.frame * runnerData.rec.width;
-                runnerData.frame++;
-                if(runnerData.frame>5){
-                    runnerData.frame=0;
-                }
-            }
-        }
-
-        //draw obstacle
-        DrawTextureRec(obstacle, obsAray[0].rec, obsAray[0].pos, WHITE);
-
-        //draw second obstacle
-        DrawTextureRec(obstacle, obsAray[1].rec, obsAray[1].pos, RED);
-
-        //draw third obstacle
-        DrawTextureRec(obstacle, obsAray[2].rec, obsAray[2].pos, PURPLE);
 
         //draw runner
         DrawTextureRec(runner, runnerData.rec, runnerData.pos, WHITE);
