@@ -12,14 +12,14 @@ bool isOnGround(AnimData data, int windowHeight){
     return data.pos.y>=windowHeight-data.rec.height;
 }
 
-AnimData animateSprite(AnimData data, float dT){
+AnimData animateSprite(AnimData data, float dT,int maxFrame){
     data.runningTime+=dT;
     if(data.runningTime >= data.updateTime){
         data.runningTime=0.0;
         //update animation frame
         data.rec.x = data.frame * data.rec.width;
         data.frame++;
-        if(data.frame>5){
+        if(data.frame>maxFrame){
             data.frame=0;
         }
     }
@@ -81,16 +81,58 @@ int main(){
 
     int velocity{0};
 
+    Texture2D background = LoadTexture("textures/far-buildings.png");
+    float bgX{};
+
+    Texture2D midground = LoadTexture("textures/back-buildings.png");
+    float mgX{};
+
+    Texture2D foreground = LoadTexture("textures/foreground.png");
+    float fgX{};
+
     SetTargetFPS(60);
     while (!WindowShouldClose())
     {
 
         //delta time(time since last frame)
-        float dT{GetFrameTime()};
+        float dT{GetFrameTime()}; 
 
         // start drawing
         BeginDrawing();
         ClearBackground(WHITE);
+
+        bgX-=20*dT;
+        if(bgX<=-background.width*2){
+            bgX=0.0;
+        }
+
+        mgX-=20*dT;
+        if(mgX<=-midground.width*2){
+            mgX=0.0;
+        }
+
+        fgX-=20*dT;
+        if(fgX<=-foreground.width*2){
+            fgX=0.0;
+        }
+
+        //draw the background
+        Vector2 bg1Pos{bgX,0.0};
+        DrawTextureEx(background,bg1Pos, 0.0, 2.0, WHITE);
+        Vector2 bg2Pos{bgX+background.width*2,0.0};
+        DrawTextureEx(background,bg2Pos, 0.0, 2.0, WHITE);
+        
+        //draw the midground
+        Vector2 mg1Pos{mgX,0.0};
+        DrawTextureEx(midground,mg1Pos, 0.0, 2.0, WHITE);
+        Vector2 mg2Pos{mgX+midground.width*2,0.0};
+        DrawTextureEx(midground,mg2Pos, 0.0, 2.0, WHITE);
+
+        //draw the midground
+        Vector2 fg1Pos{fgX,0.0};
+        DrawTextureEx(foreground,fg1Pos, 0.0, 2.0, WHITE);
+        Vector2 fg2Pos{fgX+foreground.width*2,0.0};
+        DrawTextureEx(foreground,fg2Pos, 0.0, 2.0, WHITE);
 
         //perform ground check
         if(isOnGround(runnerData,windowDimensions[1])){
@@ -114,7 +156,7 @@ int main(){
 
         //update runner's animation frame
         if(!isInAir){
-            runnerData=animateSprite(runnerData,dT);
+            runnerData=animateSprite(runnerData,dT,5);
         }
 
         for (int i = 0; i < numberOfObstacles; i++)
@@ -122,7 +164,7 @@ int main(){
             //update obstacle position
             obsAray[i].pos.x+=obsVel*dT;
 
-            obsAray[i]=animateSprite(obsAray[i],dT);
+            obsAray[i]=animateSprite(obsAray[i],dT,7);
 
             //draw obstacle
             DrawTextureRec(obstacle, obsAray[i].rec, obsAray[i].pos, WHITE);
@@ -136,5 +178,8 @@ int main(){
     }
     UnloadTexture(runner);
     UnloadTexture(obstacle);
+    UnloadTexture(background);
+    UnloadTexture(midground);
+    UnloadTexture(foreground);
     CloseWindow();
 }
