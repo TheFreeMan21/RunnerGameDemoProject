@@ -11,10 +11,12 @@ struct AnimData{
 int main(){
 
     //Window Properties
-    const int windowWidth{512};
-    const int windowHeight{380};
+    int windowDimensions[2];
+    windowDimensions[0]=512;
+    windowDimensions[1]=380;
 
-    InitWindow(windowWidth ,windowHeight, "Runner");
+    //Initializing a window
+    InitWindow(windowDimensions[0] ,windowDimensions[1], "Runner");
 
     //acceleration due to gravity (pixels/frame)/frame
     const int gravity{1'000};
@@ -24,14 +26,14 @@ int main(){
     Texture2D obstacle = LoadTexture("textures/12_nebula_spritesheet.png");
     AnimData obsData{
         {0.0, 0.0, obstacle.width/8, obstacle.height/8}, //Rectangle Rec
-        {windowWidth, windowHeight - obsData.rec.height},  //Rectangle Pos
+        {windowDimensions[0], windowDimensions[1] - obsData.rec.height},  //Rectangle Pos
         0,  //int frame
         1.0/12.0,  //float updateTime
         0.0  //float runningTime
     };
     AnimData obs2Data{
         {0.0, 0.0, obstacle.width/8, obstacle.height/8}, //Rectangle Rec
-        {windowWidth+300, windowHeight - obs2Data.rec.height}, //Rectangle Pos
+        {windowDimensions[0]+300,windowDimensions[1] - obs2Data.rec.height}, //Rectangle Pos
         0, //int frame
         1.0/16.0, //float updateTime
         0.0 //float runningTime
@@ -44,7 +46,7 @@ int main(){
     Texture2D runner = LoadTexture("textures/scarfy.png");
     AnimData runnerData{
         {0.0,0.0,runner.width/6,runner.height}, //Rectangle Rec
-        {windowWidth/2-runnerData.rec.width/2,windowHeight-runnerData.rec.height}, //Rectangle Pos
+        {windowDimensions[0]/2-runnerData.rec.width/2,windowDimensions[1]-runnerData.rec.height}, //Rectangle Pos
         0, //int frame
         1.0/12.0, //float updateTime
         0.0 //float runningTime
@@ -69,7 +71,7 @@ int main(){
         ClearBackground(WHITE);
 
         //perform ground check
-        if(runnerData.pos.y >= windowHeight-runnerData.rec.height){
+        if(runnerData.pos.y >= windowDimensions[1]-runnerData.rec.height){
             //rectangle on the ground
             velocity=0;
             isInAir=false;
