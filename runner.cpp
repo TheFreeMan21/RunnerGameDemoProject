@@ -47,19 +47,21 @@ int main(){
     int x = 0;
 
     AnimData obsAray[numberOfObstacles]{};
-
+ 
     for(int i=0;i<numberOfObstacles;i++){
         obsAray[i].rec.x=0.0;
         obsAray[i].rec.y=0.0;
         obsAray[i].rec.width=obstacle.width/8;
         obsAray[i].rec.height=obstacle.height/8;
+        obsAray[i].pos.x=windowDimensions[0]+x;
         obsAray[i].pos.y=windowDimensions[1] - obstacle.height/8;
         obsAray[i].frame=0;
         obsAray[i].runningTime=0.0;
         obsAray[i].updateTime=1.0/16.0;
-        obsAray[i].pos.x=windowDimensions[0]+x;
         x+=300;
     }
+
+    float finishLine{obsAray[numberOfObstacles-1].pos.x};
 
     //nebula x velocity (pixels/second)
     int obsVel{-200};
@@ -89,6 +91,8 @@ int main(){
 
     Texture2D foreground = LoadTexture("textures/foreground.png");
     float fgX{};
+
+    bool collision{};
 
     SetTargetFPS(60);
     while (!WindowShouldClose())
@@ -158,6 +162,27 @@ int main(){
         if(!isInAir){
             runnerData=animateSprite(runnerData,dT,5);
         }
+   
+        for(AnimData obstacle : obsAray)
+        {
+            float pad{50};
+            Rectangle obsRec{
+                obstacle.pos.x+20,
+                obstacle.pos.y+20,
+                obstacle.rec.width-2*pad,
+                obstacle.rec.height-2*pad
+            };
+            Rectangle runnerRec{
+                runnerData.pos.x,
+                runnerData.pos.y,
+                runnerData.rec.width,
+                runnerData.rec.height
+            };
+            if(CheckCollisionRecs(obsRec,runnerRec)){
+                collision=true;
+            }
+        }
+        
 
         for (int i = 0; i < numberOfObstacles; i++)
         {
@@ -166,13 +191,31 @@ int main(){
 
             obsAray[i]=animateSprite(obsAray[i],dT,7);
 
-            //draw obstacle
-            DrawTextureRec(obstacle, obsAray[i].rec, obsAray[i].pos, WHITE);
         }
 
-        //draw runner
-        DrawTextureRec(runner, runnerData.rec, runnerData.pos, WHITE);
+        finishLine+=obsVel*dT;
+
+        if (collision)
+        {
+            //lose game
+            DrawText("Game Over!", windowDimensions[0]/4, windowDimensions[1]/2, 40, RED);
+        }else if(runnerData.pos.x >=finishLine){
+            //win the game
+            DrawText("You win!", windowDimensions[0]/4, windowDimensions[1]/2, 40, RED);
+        }else{
+
+            for (int i = 0; i < numberOfObstacles; i++)
+            {
+                //draw obstacle
+                DrawTextureRec(obstacle, obsAray[i].rec, obsAray[i].pos, WHITE);
+            }
+            
+            //draw runner
+            DrawTextureRec(runner, runnerData.rec, runnerData.pos, WHITE);
         
+            
+        }
+
         //stop drawing
         EndDrawing();
     }
