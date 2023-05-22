@@ -8,6 +8,24 @@ struct AnimData{
     float runningTime;
 };
 
+bool isOnGround(AnimData data, int windowHeight){
+    return data.pos.y>=windowHeight-data.rec.height;
+}
+
+AnimData animateSprite(AnimData data, float dT){
+    data.runningTime+=dT;
+    if(data.runningTime >= data.updateTime){
+        data.runningTime=0.0;
+        //update animation frame
+        data.rec.x = data.frame * data.rec.width;
+        data.frame++;
+        if(data.frame>5){
+            data.frame=0;
+        }
+    }
+    return data;
+}
+
 int main(){
 
     //Window Properties
@@ -75,7 +93,7 @@ int main(){
         ClearBackground(WHITE);
 
         //perform ground check
-        if(runnerData.pos.y >= windowDimensions[1]-runnerData.rec.height){
+        if(isOnGround(runnerData,windowDimensions[1])){
             //rectangle on the ground
             velocity=0;
             isInAir=false;
@@ -96,17 +114,7 @@ int main(){
 
         //update runner's animation frame
         if(!isInAir){
-            //update running time
-            runnerData.runningTime+=dT;
-            if(runnerData.runningTime >= runnerData.updateTime){
-                runnerData.runningTime=0.0;
-                //update animation frame
-                runnerData.rec.x = runnerData.frame * runnerData.rec.width;
-                runnerData.frame++;
-                if(runnerData.frame>5){
-                    runnerData.frame=0;
-                }
-            }
+            runnerData=animateSprite(runnerData,dT);
         }
 
         for (int i = 0; i < numberOfObstacles; i++)
@@ -114,17 +122,7 @@ int main(){
             //update obstacle position
             obsAray[i].pos.x+=obsVel*dT;
 
-            //update nebula animation frame
-            obsAray[i].runningTime += dT;
-            if(obsAray[i].runningTime >= obsAray[i].updateTime){
-                obsAray[i].runningTime = 0.0;
-                //update animation frame
-                obsAray[i].rec.x = obsAray[i].frame * obsAray[i].rec.width;
-                obsAray[i].frame++;
-                if(obsAray[i].frame>8){
-                    obsAray[i].frame=0;
-                }
-            }
+            obsAray[i]=animateSprite(obsAray[i],dT);
 
             //draw obstacle
             DrawTextureRec(obstacle, obsAray[i].rec, obsAray[i].pos, WHITE);
