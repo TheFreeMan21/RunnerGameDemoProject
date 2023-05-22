@@ -106,12 +106,12 @@ int main(){
             bgX=0.0;
         }
 
-        mgX-=20*dT;
+        mgX-=40*dT;
         if(mgX<=-midground.width*2){
             mgX=0.0;
         }
 
-        fgX-=20*dT;
+        fgX-=80*dT;
         if(fgX<=-foreground.width*2){
             fgX=0.0;
         }
